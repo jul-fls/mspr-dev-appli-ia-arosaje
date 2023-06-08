@@ -18,9 +18,6 @@ class UsermodifyType extends AbstractType
         $builder
             ->add('first_name')
             ->add('last_name')
-            ->add('phone')
-            ->add('address_number')
-            ->add('address_street')
             ->add('address_city')
             ->add('address_zipcode')
             ->add('address_country')

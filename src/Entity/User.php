@@ -22,15 +22,6 @@ class User
     #[ORM\Column(length: 255, nullable: false)]
     public ?string $email = null;
 
-    #[ORM\Column(length: 10, nullable: true)]
-    public ?string $phone = null;
-
-    #[ORM\Column(nullable: true)]
-    public ?int $address_number = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    public ?string $address_street = null;
-
     #[ORM\Column(length: 255, nullable: true)]
     public ?string $address_city = null;
 
@@ -88,42 +79,6 @@ class User
     public function setEmail(string $email): self
     {
         $this->email = $email;
-
-        return $this;
-    }
-
-    public function getPhone(): ?string
-    {
-        return $this->phone;
-    }
-
-    public function setPhone(?string $phone): self
-    {
-        $this->phone = $phone;
-
-        return $this;
-    }
-
-    public function getAddressNumber(): ?int
-    {
-        return $this->address_number;
-    }
-
-    public function setAddressNumber(?int $address_number): self
-    {
-        $this->address_number = $address_number;
-
-        return $this;
-    }
-
-    public function getAddressStreet(): ?string
-    {
-        return $this->address_street;
-    }
-
-    public function setAddressStreet(?string $address_street): self
-    {
-        $this->address_street = $address_street;
 
         return $this;
     }

@@ -47,9 +47,6 @@ class UserControllerTest extends WebTestCase
             'user[username]' => 'Testing',
             'user[password]' => 'Testing',
             'user[email]' => 'Testing',
-            'user[phone]' => 'Testing',
-            'user[address_number]' => 'Testing',
-            'user[address_street]' => 'Testing',
             'user[address_city]' => 'Testing',
             'user[address_zipcode]' => 'Testing',
             'user[address_country]' => 'Testing',
@@ -69,9 +66,6 @@ class UserControllerTest extends WebTestCase
         $fixture->setLastName('My Title');
         $fixture->setPassword('My Title');
         $fixture->setEmail('My Title');
-        $fixture->setPhone('My Title');
-        $fixture->setAddressNumber('My Title');
-        $fixture->setAddressStreet('My Title');
         $fixture->setAddressCity('My Title');
         $fixture->setAddressZipcode('My Title');
         $fixture->setAddressCountry('My Title');
@@ -92,9 +86,6 @@ class UserControllerTest extends WebTestCase
         $fixture = new User();
         $fixture->setFirstName('My Title');
         $fixture->setLastName('My Title');
-        $fixture->setPhone('My Title');
-        $fixture->setAddressNumber('My Title');
-        $fixture->setAddressStreet('My Title');
         $fixture->setAddressCity('My Title');
         $fixture->setAddressZipcode('My Title');
         $fixture->setAddressCountry('My Title');
@@ -107,9 +98,6 @@ class UserControllerTest extends WebTestCase
             'user[username]' => 'Something New',
             'user[password]' => 'Something New',
             'user[email]' => 'Something New',
-            'user[phone]' => 'Something New',
-            'user[address_number]' => 'Something New',
-            'user[address_street]' => 'Something New',
             'user[address_city]' => 'Something New',
             'user[address_zipcode]' => 'Something New',
             'user[address_country]' => 'Something New',
@@ -124,9 +112,6 @@ class UserControllerTest extends WebTestCase
         self::assertSame('Something New', $fixture[0]->getLastName());
         self::assertSame('Something New', $fixture[0]->getPassword());
         self::assertSame('Something New', $fixture[0]->getEmail());
-        self::assertSame('Something New', $fixture[0]->getPhone());
-        self::assertSame('Something New', $fixture[0]->getAddressNumber());
-        self::assertSame('Something New', $fixture[0]->getAddressStreet());
         self::assertSame('Something New', $fixture[0]->getAddressCity());
         self::assertSame('Something New', $fixture[0]->getAddressZipcode());
         self::assertSame('Something New', $fixture[0]->getAddressCountry());
@@ -144,9 +129,6 @@ class UserControllerTest extends WebTestCase
         $fixture->setLastName('My Title');
         $fixture->setPassword('My Title');
         $fixture->setEmail('My Title');
-        $fixture->setPhone('My Title');
-        $fixture->setAddressNumber('My Title');
-        $fixture->setAddressStreet('My Title');
         $fixture->setAddressCity('My Title');
         $fixture->setAddressZipcode('My Title');
         $fixture->setAddressCountry('My Title');
