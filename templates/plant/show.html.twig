@@ -1,0 +1,54 @@
+{% extends 'base_login_register.html.twig' %}
+
+{% block title %}Plant{% endblock %}
+
+{% block body %}
+    <h1>Plant</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ plant.id }}</td>
+            </tr>
+            <tr>
+                <th>Plant_name</th>
+                <td>{{ plant.plantName }}</td>
+            </tr>
+            <tr>
+                <th>Scientific_name</th>
+                <td>{{ plant.scientificName }}</td>
+            </tr>
+            <tr>
+                <th>Family_name</th>
+                <td>{{ plant.familyName }}</td>
+            </tr>
+            <tr>
+                <th>Image</th>
+                <td>{{ plant.image }}</td>
+            </tr>
+            <tr>
+                <th>birth</th>
+                <td>{{ plant.birth }}</td>
+            </tr>
+            <tr>
+                <th>Environment</th>
+                <td>{{ plant.environment ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Gbif_id</th>
+                <td>{{ plant.gbifId }}</td>
+            </tr>
+            <tr>
+                <th>Is_published</th>
+                <td>{{ plant.isPublished ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_plant_index') }}">back to list</a>
+
+    <a href="{{ path('app_plant_edit', {'id': plant.id}) }}">edit</a>
+
+    {{ include('plant/_delete_form.html.twig') }}
+{% endblock %}

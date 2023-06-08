@@ -1,0 +1,13 @@
+{% extends 'base_login_register.html.twig' %}
+
+{% block title %}Edit Guarding{% endblock %}
+
+{% block body %}
+    <h1>Edit Guarding</h1>
+
+    {{ include('guarding/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_guarding_index') }}">back to list</a>
+
+    {{ include('guarding/_delete_form.html.twig') }}
+{% endblock %}

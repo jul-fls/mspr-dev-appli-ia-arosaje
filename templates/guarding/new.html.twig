@@ -1,0 +1,11 @@
+{% extends 'base_login_register.html.twig' %}
+
+{% block title %}New Guarding{% endblock %}
+
+{% block body %}
+    <h1>Create new Guarding</h1>
+
+    {{ include('guarding/_form.html.twig') }}
+
+    <a href="{{ path('app_guarding_index') }}">back to list</a>
+{% endblock %}

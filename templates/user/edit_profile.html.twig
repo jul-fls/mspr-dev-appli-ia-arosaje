@@ -1,0 +1,130 @@
+{% extends 'base_app.html.twig' %}
+
+{% block title %}Profil{% endblock %}
+
+{% block body %}
+<div class="profil">
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 mb-4 mb-sm-5">
+                    <div class="card card-style1 border-0">
+                        <div class="card-body p-1-9 p-sm-2-3 p-md-6 p-lg-7">
+                            <div class="row align-items-center">
+                                <div class="col-lg-6 mb-4 mb-lg-0">
+                                    <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="...">
+                                </div>
+                                <div class="col-lg-6 px-xl-10">
+                                    <form action="{{path('app_user_edit_profile')}}" method="post" name="usermodify">
+                                        <input type="hidden" name="user[_token]" value="{{ csrf_token('user') }}" />
+                                        <div class="bg-secondary d-lg-inline-block py-1-9 px-1-9 px-sm-6 mb-1-9 rounded">
+                                            <h3 class="h2 text-white mb-0">{{ app.session.get('user') }}</h3>
+                                        </div>
+                                        <ul class="list-unstyled mb-1-9">
+                                            <li class="mb-4 mb-xl-3 display-28">
+                                                <div style="display: inline-flex;">
+                                                    <span class="display-26 text-secondary me-2 font-weight-600">Prénom:</span>
+                                                    <div class="form__group field">
+                                                        <input type="input" class="form__field" name="usermodify[first_name]" value="{{user.first_name}}" required>
+                                                        <label class="form__label"></label>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="mb-4 mb-xl-3 display-28">
+                                                <div style="display: inline-flex;">
+                                                    <span class="display-26 text-secondary me-2 font-weight-600">Nom:</span>
+                                                    <div class="form__group field">
+                                                        <input type="input" class="form__field" name="usermodify[last_name]" value="{{user.last_name}}" required>
+                                                        <label class="form__label"></label>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="mb-4 mb-xl-3 display-28">
+                                                <div style="display: inline-flex;">
+                                                    <span class="display-26 text-secondary me-2 font-weight-600">Rôle:</span>
+                                                    <div class="form__group field">
+                                                        <select class="form__field" id="user_role" name="usermodify[role]">
+                                                            {% for role in roles %}
+                                                                {% if role.id != 5 %}
+                                                                    <option value="{{ role.id }}"{% if user.role.id == role.id %} selected{% endif %}>{{ role.name }}</option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                        <label class="form__label"></label>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="mb-4 mb-xl-3 display-28">
+                                                <div style="display: inline-flex;">
+                                                    <span class="display-26 text-secondary me-2 font-weight-600">Téléphone:</span>
+                                                    <div class="form__group field">
+                                                        <input type="input" class="form__field" name="usermodify[phone]" value="{{user.phone}}">
+                                                        <label class="form__label"></label>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="mb-4 mb-xl-3 display-28">
+                                                <div style="display: inline-flex;">
+                                                    <span class="display-26 text-secondary me-2 font-weight-600">N°Adresse:</span>
+                                                    <div class="form__group field">
+                                                        <input type="number" class="form__field" name="usermodify[address_number]" value="{{user.address_number}}">
+                                                        <label class="form__label"></label>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="mb-4 mb-xl-3 display-28">
+                                                <div style="display: inline-flex;">
+                                                    <span class="display-26 text-secondary me-2 font-weight-600">Rue:</span>
+                                                    <div class="form__group field">
+                                                        <input type="input" class="form__field" name="usermodify[address_street]" value="{{user.address_street}}">
+                                                        <label class="form__label"></label>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="mb-4 mb-xl-3 display-28">
+                                                <div style="display: inline-flex;">
+                                                    <span class="display-26 text-secondary me-2 font-weight-600">Ville:</span>
+                                                    <div class="form__group field">
+                                                        <input type="input" class="form__field" name="usermodify[address_city]" value="{{user.address_city}}">
+                                                        <label class="form__label"></label>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="mb-4 mb-xl-3 display-28">
+                                                <div style="display: inline-flex;">
+                                                    <span class="display-26 text-secondary me-2 font-weight-600">ZIP Code:</span>
+                                                    <div class="form__group field">
+                                                        <input type="input" class="form__field" name="usermodify[address_zipcode]" value="{{user.address_zipcode}}">
+                                                        <label class="form__label"></label>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="mb-4 mb-xl-3 display-28">
+                                                <div style="display: inline-flex;">
+                                                    <span class="display-26 text-secondary me-2 font-weight-600">Pays:</span>
+                                                    <div class="form__group field">
+                                                        <input type="input" class="form__field" name="usermodify[address_country]" value="{{user.address_country}}">
+                                                        <label class="form__label"></label>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="mb-4 mb-xl-3 display-28 center my-3">
+                                                <button class="button btn btn-send btn-lg" type="submit">Sauvegarder</button>
+                                            </li>
+                                        </ul>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<div class="footer-profil">
+{% endblock %}
+{% block footer %}
+    {{ include('footer_app.html.twig') }}
+    </div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base_login_register.html.twig' %}
+
+{% block title %}Plant index{% endblock %}
+
+{% block body %}
+    <h1>Plant index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Plant_name</th>
+                <th>Scientific_name</th>
+                <th>Family_name</th>
+                <th>Image</th>
+                <th>birth</th>
+                <th>Environment</th>
+                <th>Gbif_id</th>
+                <th>Is_published</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for plant in plants %}
+            <tr>
+                <td>{{ plant.id }}</td>
+                <td>{{ plant.plantName }}</td>
+                <td>{{ plant.scientificName }}</td>
+                <td>{{ plant.familyName }}</td>
+                <td>{{ plant.image }}</td>
+                <td>{{ plant.birth }}</td>
+                <td>{{ plant.environment ? 'Yes' : 'No' }}</td>
+                <td>{{ plant.gbifId }}</td>
+                <td>{{ plant.isPublished ? 'Yes' : 'No' }}</td>
+                <td>
+                    <a href="{{ path('app_plant_show', {'id': plant.id}) }}">show</a>
+                    <a href="{{ path('app_plant_edit', {'id': plant.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="10">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_plant_new') }}">Create new</a>
+{% endblock %}

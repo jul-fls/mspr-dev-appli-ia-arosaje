@@ -1,0 +1,322 @@
+{% extends 'base_app.html.twig' %}
+
+{% block title %}Accueil Arosaje
+{% endblock %}
+
+{% block body %}
+	<!-- Background -->
+	<section class="home" style="background-image: url('{{ asset('img/background.jpg')}}')"></section>
+	<!-- /Background -->
+
+	<!-- Plant -->
+	<section class="plant pt-3 fixed">
+		<h2 class="title text-center display-2 mb-5">Mes Plantes</h2>
+
+		<div class="custom-container mb-5">
+			<div class="wrapper">
+				{% if userplants %}
+					<i id="left" class="arrow bi bi-caret-left"></i>
+					<ul class="carousel" style="grid-auto-columns: calc(100% / {% if userplants|length < 5%}{{ userplants|length }}){% else %}4{% endif %} - 12px);">
+						{% for plant in userplants %}
+							<li class="card {% if plant.is_published %}published{% endif %}" data-id="{{plant.id}}">
+								{% if plant.is_published %}
+									<i class="published-icon bi bi-megaphone-fill position-absolute" title="Publié"></i>
+								{% endif %}
+								<i class="environment-icon bi bi-{% if plant.environment %}sun{% else %}house-door{% endif %}-fill position-absolute" title="{% if plant.environment %}Extérieur{% else %}Intérieur{% endif %}"></i>
+								<div data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="hover" data-bs-title="Description" data-bs-content="{{plant.description}}" class="img">
+									<img src="{{plant.image}}" alt="img" draggable="false">
+								</div>
+								<h2>{{plant.plant_name}}</h2>
+								<span class="text-muted">{{plant.family_name}}</span>
+								<div class="d-flex">
+									{% if plant.is_published %}
+										<button type="button" class="btn me-3" data-bs-toggle="modal" data-bs-target="#clickforUnpublishModal" data-published="yes" data-plant-id="{{plant.id}}" onclick="unpublish_modal()">Dépublier</button>
+									{% else %}
+										<button type="button" class="btn me-3" data-bs-toggle="modal" data-bs-target="#clickforPublishModal" data-published="no" data-plant-id="{{plant.id}}" onclick="publish_modal()">Publier</button>
+									{% endif %}
+									<button type="button" class="btn me-3" data-bs-toggle="modal" data-bs-target="#clickforModifyModal" data-plant-id="{{plant.id}}" onclick="modify_modal()">Modifier</button>
+									<button type="button" class="btn delete" data-bs-toggle="modal" data-bs-target="#clickforDeleteModal" data-plant-id="{{plant.id}}" onclick="delete_modal()">Supprimer</button>
+								</div>
+								<span class="birthday position-absolute" title="Année de germination : {{ plant.birth }}">
+									<i class="fa-solid fa-seedling"></i>
+									<strong>{{plant.birth}}</strong>
+								</span>
+							</li>
+						{% endfor %}
+					</ul>
+					<i id="right" class="arrow bi bi-caret-right"></i>
+				{% else %}
+					<h2 class="text-center">Vous n'avez pas encore de plantes</h3>
+				{% endif %}
+			</div>
+		</div>
+	</section>
+	<!-- /Plant -->
+
+	<!-- 1) Modal : Unpublish -> Publish -->
+	<div class="modal fade" id="clickforPublishModal" tabindex="-1" aria-labelledby="clickPublishModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="clickPublishModalLabel">Dépublié -&gt; Publié</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" style="font-size: 2rem;">
+					Êtes-vous sûr ? (Dépublié -&gt; Publié)
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closePublishModalButton">Fermer</button>
+					<button type="button" class="btn btn-save" id="publishButton">Enregistrer les modifications</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /1) Modal : Unpublish -> Publish -->
+
+	<!-- 2) Modal : Publish -> Unpublish -->
+	<div class="modal fade" id="clickforUnpublishModal" tabindex="-1" aria-labelledby="clickforUnpublishModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="clickforUnpublishModalLabel">Publié -&gt; Dépublié</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					Êtes-vous sûr ? (Publié -&gt; Dépublié)
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeUnpublishModalButton">Fermer</button>
+					<button type="button" class="btn btn-save" id="unpublishButton">Enregistrer les modifications</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /2) Modal : Publish -> Unpublish -->
+
+	<!-- 3) Modal : Send Message -->
+	<div class="modal fade" id="sendMessageModal" tabindex="-1" aria-labelledby="sendMessageModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-fullscreen-md-down">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title" id="sendMessageModalLabel">Nouveau message</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<form>
+						<div class="mb-3">
+							<label for="message-text" class="col-form-label">Message:</label>
+							<textarea class="form-control " id="message-text"></textarea>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+					<button type="button" class="btn btn-send">Envoyer un Mail</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /3) Modal : Send Message -->
+
+	<!-- 4) Modal : Upload -->
+	<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-fullscreen-md-down">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title" id="uploadModalLabel">Upload Photo</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div
+					class="modal-body">
+					<!-- Modal for the loading spinner -->
+					<div class="modal" id="loadingSpinnerModal" tabindex="-1">
+						<div class="modal-dialog modal-dialog-centered">
+							<div class="modal-content">
+								<div class="modal-body text-center">
+									<div class="spinner-border" role="status">
+										<span class="visually-hidden">Loading...</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<form enctype="multipart/form-data" method="POST" name="plant" action="{{ path('app_plant_new') }}">
+						<input type="hidden" name="plant[_token]" value="{{ csrf_token('plant') }}"/>
+						<input type="hidden" name="plant[owner]" value="{{ app.session.get('user').id }}"/>
+						<div id="aifields" class="d-none">
+							<div class="form-group mb-3">
+								<label for="plant-name" class="col-form-label">Nom de la plante:</label>
+								<input type="text" class="form-control disabled" id="plant_name" name="plant[plant_name]" readonly>
+							</div>
+							<div class="form-group mb-3">
+								<label for="scientific-name" class="col-form-label">Nom scientifique de la plante:</label>
+								<input type="text" class="form-control disabled" id="scientific_name" name="plant[scientific_name]" readonly>
+							</div>
+							<div class="form-group mb-3">
+								<label for="family-name" class="col-form-label">Nom de famille de la plante:</label>
+								<input type="text" class="form-control disabled" id="family_name" name="plant[family_name]" readonly>
+							</div>
+							<div class="form-group mb-3">
+								<label for="gbif_id" class="col-form-label">Id GBIF:</label>
+								<input type="number" class="form-control disabled" id="gbif_id" name="plant[gbif_id]" readonly>
+							</div>
+						</div>
+						<div class="form-group mb-3">
+							<label for="birth" class="col-form-label">Année de germination:</label>
+							<input type="number" class="form-control" id="birth" name="plant[birth]">
+						</div>
+						<div class="mb-3">
+							<label for="description-text" class="col-form-label">Description:</label>
+							<textarea class="form-control" id="description" name="plant[description]"></textarea>
+						</div>
+						<div class="mb-3">
+							<label for="environment-text" class="col-form-label">Environnement</label>
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" id="environment" name="plant[environment]">
+								<label class="form-check-label" for="environment">
+									Intérieur (décoché) / Extérieur (coché)
+								</label>
+							</div>
+						</div>
+						<div class="mb-3">
+							<label for="published-text" class="col-form-label">Publié</label>
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" id="is_published" name="plant[is_published]">
+								<label class="form-check-label" for="is_published">
+									Publié (coché) / Non publié (décoché)
+								</label>
+							</div>
+						</div>
+					</div>
+					<div class="ms-3 mb-3">
+						<label for="photo-text" class="col-form-label">Upload Photo:</label>
+						<br>
+						<input type="file" id="input_photo_upload" accept="image/png, image/jpeg, image/jpg"><br/>
+						<input type="hidden" id="imgb64_upload" name="plant[image]">
+						<img class="mt-3" id="img_upload" height="150">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+						<button type="submit" class="btn btn-send">Uploader</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- /4) Modal : Upload -->
+
+<!-- 5) Modal : Modify -->
+<div class="modal fade" id="clickforModifyModal" tabindex="-1" aria-labelledby="clickforModifyModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-fullscreen-md-down">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title" id="uploadModalLabel">Modifier une plante</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form enctype="multipart/form-data" method="POST" name="plant" action="{{ path('app_plant_edit',{'id':1}) }}" id="modifyForm">
+						<input type="hidden" name="plant[_token]" value="{{ csrf_token('plant') }}"/>
+						<input type="hidden" name="plant[owner]" value="{{ app.session.get('user').id }}"/>
+						<div class="form-group mb-3">
+							<label for="plant-name" class="col-form-label">Nom de la plante:</label>
+							<input type="text" class="form-control" id="plant_name2" name="plant[plant_name]">
+						</div>
+						<div class="form-group mb-3">
+							<label for="scientific-name" class="col-form-label">Nom scientifique de la plante:</label>
+							<input type="text" class="form-control" id="scientific_name2" name="plant[scientific_name]">
+						</div>
+						<div class="form-group mb-3">
+							<label for="family-name" class="col-form-label">Nom de famille de la plante:</label>
+							<input type="text" class="form-control" id="family_name2" name="plant[family_name]">
+						</div>
+						<div class="form-group mb-3">
+							<label for="gbif_id" class="col-form-label">Id GBIF:</label>
+							<input type="number" class="form-control" id="gbif_id2" name="plant[gbif_id]">
+						</div>
+						<div class="form-group mb-3">
+							<label for="birth" class="col-form-label">Année de germination:</label>
+							<input type="number" class="form-control" id="birth2" name="plant[birth]">
+						</div>
+						<div class="mb-3">
+							<label for="description-text" class="col-form-label">Description:</label>
+							<textarea class="form-control" id="description2" name="plant[description]"></textarea>
+						</div>
+						<div class="mb-3">
+							<label for="environment-text" class="col-form-label">Environnement</label>
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" id="environment2" name="plant[environment]">
+								<label class="form-check-label" for="environment2">
+									Intérieur(décoché) / Extérieur(coché)
+								</label>
+							</div>
+						</div>
+					</div>
+					<div class="ms-3 mb-3">
+						<label for="photo-text" class="col-form-label">Upload Photo:</label>
+						<br>
+						<input type="file" id="input_photo_modify" accept="image/png, image/jpeg, image/jpg"><br/>
+						<input type="hidden" id="imgb64_modify" name="plant[image]">
+						<img class="mt-3" id="img_modify" height="150">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+						<button type="submit" class="btn btn-send" id="modifyButton">Modifier</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- /5) Modal : Modify -->
+
+<!-- 6) Modal : Delete -->
+<div class="modal fade" id="clickforDeleteModal" tabindex="-1" aria-labelledby="clickforDeleteModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="clickforDeleteModalLabel">Supprimer</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				Êtes-vous sûr ? (Supprimer définitivement)
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+				<button type="button" class="btn btn-save" id="deleteButton">Supprimer</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- /6) Modal : Delete -->
+
+<!-- Annonce -->
+<section class="annonce">
+	<h2 class="title text-center display-2 mb-5">Les Annonces</h2>
+
+	<div class="row text-center gx-5 gy-5 mx-3">
+		{% if publishedplants %}
+			{% for plant in publishedplants %}
+				<div class="col-12 col-sm-12 col-md-6 col-lg-4">
+					<div class="card m-auto published">
+						<img src="{{plant.image}}" alt="img" draggable="false">
+						<div class="card-body">
+							<h5 class="card-title">{{plant.plant_name}}</h5>
+							<p class="card-description text-muted">{{plant.family_name}}</p>
+							<p class="card-text">{{plant.description}}</p>
+							<button type="button" class="btn " data-bs-toggle="modal" data-bs-target="#sendMessageModal" data-to-owner="{{plant.owner.email}}" data-plant-name="{{plant.plant_name}}">
+								<i class="bi bi-envelope-fill"></i>
+								Contacter</button>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		{% else %}
+			<h2 class="text-center">Aucune annonce pour le moment</h3>
+		{% endif %}
+	</div>
+</section>
+{% endblock %}
+{% block footer %}
+	{% include 'footer_app.html.twig' %}
+{% endblock %}

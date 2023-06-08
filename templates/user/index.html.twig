@@ -1,0 +1,53 @@
+{% extends 'base_login_register.html.twig' %}
+
+{% block title %}User index{% endblock %}
+
+{% block body %}
+    <h1>User index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>First_name</th>
+                <th>Last_name</th>
+                <th>Password</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address_number</th>
+                <th>Address_street</th>
+                <th>Address_city</th>
+                <th>Address_zipcode</th>
+                <th>Address_country</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.firstName }}</td>
+                <td>{{ user.lastName }}</td>
+                <td>{{ user.password }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.phone }}</td>
+                <td>{{ user.addressNumber }}</td>
+                <td>{{ user.addressStreet }}</td>
+                <td>{{ user.addressCity }}</td>
+                <td>{{ user.addressZipcode }}</td>
+                <td>{{ user.addressCountry }}</td>
+                <td>
+                    <a href="{{ path('app_user_show', {'id': user.id}) }}">show</a>
+                    <a href="{{ path('app_user_edit', {'id': user.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="11">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_user_new') }}">Create new</a>
+{% endblock %}

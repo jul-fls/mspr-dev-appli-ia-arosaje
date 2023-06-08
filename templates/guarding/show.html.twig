@@ -1,0 +1,30 @@
+{% extends 'base_login_register.html.twig' %}
+
+{% block title %}Guarding{% endblock %}
+
+{% block body %}
+    <h1>Guarding</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ guarding.id }}</td>
+            </tr>
+            <tr>
+                <th>From_timestamp</th>
+                <td>{{ guarding.fromTimestamp ? guarding.fromTimestamp|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>To_timestamp</th>
+                <td>{{ guarding.toTimestamp ? guarding.toTimestamp|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_guarding_index') }}">back to list</a>
+
+    <a href="{{ path('app_guarding_edit', {'id': guarding.id}) }}">edit</a>
+
+    {{ include('guarding/_delete_form.html.twig') }}
+{% endblock %}
