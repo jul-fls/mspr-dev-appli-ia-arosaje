@@ -6,19 +6,23 @@ use App\Entity\User;
 use App\Form\UserType;
 use App\Form\UsermodifyType;
 use App\Repository\UserRepository;
+use App\Service\RoleChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 #[Route('/user')]
 class UserController extends AbstractController
 {
 
+    private $roleChecker;
+
     private $entityManager;
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, RoleChecker $roleChecker)
     {
         $this->entityManager = $entityManager;
         $this->roleChecker = $roleChecker;
@@ -26,8 +30,13 @@ class UserController extends AbstractController
 
 
     #[Route('/', name: 'app_user_index', methods: ['GET'])]
-    public function index(UserRepository $userRepository): Response
+    public function index(UserRepository $userRepository, Request $request): Response
     {
+        try {
+            $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Administrateur');
+        } catch (AccessDeniedException $e) {
+            return $this->json(['message' => $e->getMessage()], 403);
+        }
         return $this->render('user/index.html.twig', [
             'users' => $userRepository->findAll(),
         ]);
@@ -64,8 +73,13 @@ class UserController extends AbstractController
     
 
     #[Route('/show/{id}', name: 'app_user_show', methods: ['GET'])]
-    public function show(User $user): Response
+    public function show(User $user, Request $request): Response
     {
+        try {
+            $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Administrateur');
+        } catch (AccessDeniedException $e) {
+            return $this->json(['message' => $e->getMessage()], 403);
+        }
         return $this->render('user/show.html.twig', [
             'user' => $user,
         ]);
@@ -74,6 +88,11 @@ class UserController extends AbstractController
     #[Route('/edit/{id}', name: 'app_user_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, User $user, UserRepository $userRepository): Response
     {
+        try {
+            $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Administrateur');
+        } catch (AccessDeniedException $e) {
+            return $this->json(['message' => $e->getMessage()], 403);
+        }
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
@@ -92,6 +111,11 @@ class UserController extends AbstractController
     #[Route('/edit_profile', name: 'app_user_edit_profile', methods: ['GET', 'POST'])]
     public function edit_profile(Request $request, UserRepository $userRepository,EntityManagerInterface $entityManager): Response
     {
+        try {
+            $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Utilisateur');
+        } catch (AccessDeniedException $e) {
+            return $this->json(['message' => $e->getMessage()], 403);
+        }
         $session = $request->getSession();
         $user = $session->get('user');
         
@@ -120,6 +144,11 @@ class UserController extends AbstractController
     #[Route('/delete/{id}', name: 'app_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, UserRepository $userRepository): Response
     {
+        try {
+            $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Administrateur');
+        } catch (AccessDeniedException $e) {
+            return $this->json(['message' => $e->getMessage()], 403);
+        }
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
             $userRepository->remove($user, true);
         }
@@ -171,6 +200,11 @@ class UserController extends AbstractController
     #[Route('/logout', name: 'app_user_logout', methods: ['GET'])]
     public function logout(Request $request): Response
     {
+        try {
+            $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Utilisateur');
+        } catch (AccessDeniedException $e) {
+            return $this->json(['message' => $e->getMessage()], 403);
+        }
         // Check if the user is logged in
         $session = $request->getSession();
         if ($session->get('user')) {

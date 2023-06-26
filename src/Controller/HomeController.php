@@ -2,23 +2,32 @@
 
 namespace App\Controller;
 
+use App\Service\RoleChecker;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class HomeController extends AbstractController
 {
     public function __construct(
         private RequestStack $requestStack,
-        private ManagerRegistry $doctrine
+        private ManagerRegistry $doctrine,
+        private RoleChecker $roleChecker
     ) {}
 
     #[Route('/', name: 'app_home')]
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        try {
+            $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Utilisateur');
+        } catch (AccessDeniedException $e) {
+            return $this->json(['message' => $e->getMessage()], 403);
+        }
         $session = $this->requestStack->getSession();
         $user = $session->get('user');
         $em = $this->doctrine->getManager();
