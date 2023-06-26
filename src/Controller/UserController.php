@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/user')]
@@ -20,6 +21,7 @@ class UserController extends AbstractController
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->entityManager = $entityManager;
+        $this->roleChecker = $roleChecker;
     }
 
 
@@ -32,7 +34,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, UserRepository $userRepository): Response
+    public function new(Request $request, UserRepository $userRepository,UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
@@ -42,6 +44,10 @@ class UserController extends AbstractController
             $user_role = $this->entityManager->getRepository('App\Entity\Role')->find(2);
             dump($user_role); // Affichez le rôle pour vérifier qu'il a été récupéré correctement
             $user->setRole($user_role);
+            $plaintextPassword = $user->getPassword();
+            //cast the user to the UserPasswordHasherInterface
+            $hashedPassword = $passwordHasher->hashPassword($user, $plaintextPassword);
+            $user->setPassword($hashedPassword);
             $userRepository->save($user, true);
             $session = $request->getSession();
             $session->set('user', $user);
@@ -122,7 +128,11 @@ class UserController extends AbstractController
     }
 
     #[Route('/login', name: 'app_user_login', methods: ['GET', 'POST'])]
-    public function login(Request $request, UserRepository $userRepository): Response
+    public function login(
+        Request $request, 
+        UserRepository $userRepository, 
+        UserPasswordHasherInterface $passwordHasher
+    ): Response
     {
         // Check if the user is logged in
         $session = $request->getSession();
@@ -136,13 +146,13 @@ class UserController extends AbstractController
         if ($request->getMethod() === 'POST') {
             // Get submitted email and password
             $email = $request->request->get('email');
-            $password = $request->request->get('password');
+            $plaintextPassword = $request->request->get('password');
 
             // Find user in database
             $user = $userRepository->findOneBy(['email' => $email]);
 
             // Check credentials
-            if ($user && $user->getPassword() === $password) {
+            if ($user && $passwordHasher->isPasswordValid($user, $plaintextPassword)) {
                 // If credentials are correct, log user in and redirect to the index page
                 $session->set('user', $user);
                 return $this->redirectToRoute('app_home');
