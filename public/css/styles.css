@@ -117,6 +117,21 @@ label.col-form-label {
   color: var(--green);
 }
 
+.cookiepage h3{
+  font-size: 2.50rem;
+}
+
+.mentionpage h3{
+  font-size: 2.50rem;
+}
+
+.cookiepage h2{
+  font-size: 3rem;
+}
+
+.mentionpage h2{
+  font-size: 3rem;
+}
 /* Home section */
 
 .home {
@@ -363,6 +378,15 @@ button.btn-save:hover {
 .carousel .card span {
   font-size: 1.31rem;
   margin-bottom: 2rem !important;
+}
+
+
+.cookiefont{
+  font-size: 14px;
+}
+
+.mentionfont{
+  font-size: 14px;
 }
 
 /* Footer */

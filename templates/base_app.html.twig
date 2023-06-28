@@ -49,6 +49,67 @@
             </nav>
         <!-- /Nav -->
         {% block body %}{% endblock %}
+        <script src="{{ asset('js/tarteaucitron.js')}}"></script>
+    <script>
+        tarteaucitron.services.mycustomservice = {
+            "key": "mycustomservice",
+            "type": "analytic",
+            "name": "Cloudflare Web Analytics",
+            "needConsent": true,
+            "cookies": ['PHPSESSID'],
+            "readmoreLink": "https://developers.cloudflare.com/analytics/web-analytics", // If you want to change readmore link
+            "js": function () {
+                "use strict";
+                // When user allow cookie
+            },
+            "fallback": function () {
+                "use strict";
+                // when use deny cookie
+            }
+        };
+        tarteaucitron.init({
+        "privacyUrl": "{{ path('app_tos') }}", /* Privacy policy url */
+        "bodyPosition": "bottom", /* or top to bring it as first element for accessibility */
+
+        "hashtag": "#tarteaucitron", /* Open the panel with this hashtag */
+        "cookieName": "tarteaucitron", /* Cookie name */
+
+        "orientation": "middle", /* Banner position (top - bottom - middle - popup) */
+
+        "groupServices": true, /* Group services by category */
+        "serviceDefaultState": "wait", /* Default state (true - wait - false) */
+
+        "showAlertSmall": false, /* Show the small banner on bottom right */
+        "cookieslist": true, /* Show the cookie list */
+        
+        "showIcon": true, /* Show cookie icon to manage cookies */
+        // "iconSrc": "", /* Optionnal: URL or base64 encoded image */
+        "iconPosition": "BottomRight", /* Position of the icon between BottomRight, BottomLeft, TopRight and TopLeft */
+
+        "adblocker": false, /* Show a Warning if an adblocker is detected */
+
+        "DenyAllCta" : true, /* Show the deny all button */
+        "AcceptAllCta" : true, /* Show the accept all button when highPrivacy on */
+        "highPrivacy": true, /* HIGHLY RECOMMANDED Disable auto consent */
+
+        "handleBrowserDNTRequest": false, /* If Do Not Track == 1, disallow all */
+
+        "removeCredit": true, /* Remove credit link */
+        "moreInfoLink": false, /* Show more info link */
+        "useExternalCss": false, /* If false, the tarteaucitron.css file will be loaded */
+        "useExternalJs": false, /* If false, the tarteaucitron.services.js file will be loaded */
+
+        //"cookieDomain": ".my-multisite-domaine.fr", /* Shared cookie for subdomain website */
+
+        "readmoreLink": "", /* Change the default readmore link pointing to tarteaucitron.io */
+        
+        "mandatory": true, /* Show a message about mandatory cookies */
+        "mandatoryCta": true /* Show the disabled accept button when mandatory on */
+    });
+    </script>
+    <!-- Cloudflare Web Analytics -->
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ee2ff96beb114739bc336a44fb44563e"}'></script>
+    <!-- End Cloudflare Web Analytics -->
     </body>
     <footer class="text-center text-lg-start mt-5 rounded-top">
         {% block footer %}{% endblock %}
