@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<title>Message index</title>
+
+{% block body %}
+    <h1>Message index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Content</th>
+                <th>Sent_at</th>
+                <th>View_at</th>
+                <th>Reply_to_message</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for message in messages %}
+            <tr>
+                <td>{{ message.id }}</td>
+                <td>{{ message.content }}</td>
+                <td>{{ message.sentAt ? message.sentAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ message.viewAt ? message.viewAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ message.replyToMessage }}</td>
+                <td>
+                    <a href="{{ path('app_message_show', {'id': message.id}) }}">show</a>
+                    <a href="{{ path('app_message_edit', {'id': message.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_message_new') }}">Create new</a>
+{% endblock %}

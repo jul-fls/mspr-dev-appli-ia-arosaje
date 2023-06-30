@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<title>Message</title>
+
+{% block body %}
+    <h1>Message</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ message.id }}</td>
+            </tr>
+            <tr>
+                <th>Content</th>
+                <td>{{ message.content }}</td>
+            </tr>
+            <tr>
+                <th>Sent_at</th>
+                <td>{{ message.sentAt ? message.sentAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>View_at</th>
+                <td>{{ message.viewAt ? message.viewAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Reply_to_message</th>
+                <td>{{ message.replyToMessage }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_message_index') }}">back to list</a>
+
+    <a href="{{ path('app_message_edit', {'id': message.id}) }}">edit</a>
+
+    {{ include('message/_delete_form.html.twig') }}
+{% endblock %}
