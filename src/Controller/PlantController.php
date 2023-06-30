@@ -92,7 +92,7 @@ class PlantController extends AbstractController
     {
         try {
             $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Utilisateur');
-            if($plant->getOwner() !== $request->getSession()->get('user')) {
+            if($plant->getOwner()->getId() !== $request->getSession()->get('user')->getId()) {
                 throw new AccessDeniedException('Vous n\'avez pas les droits suffisants pour accéder à cette ressource.');
             }
         } catch (AccessDeniedException $e) {
@@ -118,7 +118,7 @@ class PlantController extends AbstractController
     {
         try {
             $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Utilisateur');
-            if($plant->getOwner() !== $request->getSession()->get('user')) {
+            if($plant->getOwner()->getId() !== $request->getSession()->get('user')->getId()) {
                 throw new AccessDeniedException('Vous n\'avez pas les droits suffisants pour accéder à cette ressource.');
             }
         } catch (AccessDeniedException $e) {
@@ -137,14 +137,14 @@ class PlantController extends AbstractController
     {
         try {
             $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Utilisateur');
-            if($plant->getOwner() !== $request->getSession()->get('user')) {
+            if($plant->getOwner()->getId() !== $request->getSession()->get('user')->getId()) {
                 throw new AccessDeniedException('Vous n\'avez pas les droits suffisants pour accéder à cette ressource.');
             }
         } catch (AccessDeniedException $e) {
             return $this->json(['message' => $e->getMessage()], 403);
         }
         $plantRepository->remove($plant, true);
-        return $this->redirectToRoute('app_plant_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/identify', name: 'app_plant_identify', methods: ['POST'])]
