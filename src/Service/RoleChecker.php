@@ -24,10 +24,13 @@ class RoleChecker
         $role_min_power = $role_min->getPowerLevel();
         $role_user = $user->getRole();
         $role_user_power = $role_user->getPowerLevel();
+        dump("role_min_power : ".$role_min_power.",role_user_power : ".$role_user_power);
         if ($role_min_power > $role_user_power) {
             throw new AccessDeniedException('Vous n\'avez pas les droits suffisants pour accéder à cette ressource.');
+        }else if($role_min_power == $role_user_power){
+            return true;
+        }else{
+            return true;
         }
-
-        return true;
     }
 }

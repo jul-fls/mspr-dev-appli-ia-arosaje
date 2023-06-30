@@ -81,7 +81,7 @@ class GuardingController extends AbstractController
     {
         try {
             $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Guardien');
-            if($guarding->getGuardian() !== $request->getSession()->get('user')) {
+            if($guarding->getGuardian()->getId() !== $request->getSession()->get('user')->getId()) {
                 throw new AccessDeniedException('Vous n\'avez pas les droits suffisants pour accéder à cette ressource.');
             }
         } catch (AccessDeniedException $e) {
@@ -107,7 +107,7 @@ class GuardingController extends AbstractController
     {
         try {
             $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Guardien');
-            if($guarding->getGuardian() !== $request->getSession()->get('user')) {
+            if($guarding->getGuardian()->getId() !== $request->getSession()->get('user')->getId()) {
                 throw new AccessDeniedException('Vous n\'avez pas les droits suffisants pour accéder à cette ressource.');
             }
         } catch (AccessDeniedException $e) {
