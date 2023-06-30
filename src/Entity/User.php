@@ -2,35 +2,59 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use phpDocumentor\Reflection\Types\Nullable;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-
+#[ApiResource(
+    operations: [
+        new Get(normalizationContext: ['groups' => 'user:item']),
+        new GetCollection(normalizationContext: ['groups' => 'user:list']),
+        new Post(normalizationContext: ['groups' => 'user:item']),
+        new Put(normalizationContext: ['groups' => 'user:item']),
+        new Delete(normalizationContext: ['groups' => 'user:item']),
+        new Patch(normalizationContext: ['groups' => 'user:item']),
+    ],
+    order: ['last_name' => 'DESC', 'id' => 'ASC'],
+    paginationEnabled: false,
+)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['user:list', 'user:item'])]
     public ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: false)]
+    #[Groups(['user:list', 'user:item'])]
     public ?string $password = null;
 
     #[ORM\Column(length: 255, nullable: false)]
+    #[Groups(['user:list', 'user:item'])]
     public ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user:list', 'user:item'])]
     public ?string $address_city = null;
 
     #[ORM\Column(length: 5, nullable: true)]
+    #[Groups(['user:list', 'user:item'])]
     public ?string $address_zipcode = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user:list', 'user:item'])]
     public ?string $address_country = null;
 
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Plant::class, orphanRemoval: true)]
@@ -44,15 +68,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
     public Collection $guardings;
 
     #[ORM\Column(length: 255,nullable: false)]
+    #[Groups(['user:list', 'user:item'])]
     public ?string $first_name = null;
 
     #[ORM\Column(length: 255,nullable: false)]
+    #[Groups(['user:list', 'user:item'])]
     public ?string $last_name = null;
+
+    #[ORM\OneToMany(mappedBy: 'to_user', targetEntity: Conversation::class, orphanRemoval: true)]
+    private Collection $conversations;
 
     public function __construct()
     {
         $this->plants = new ArrayCollection();
         $this->guardings = new ArrayCollection();
+        $this->conversations = new ArrayCollection();
     }
 
 
@@ -240,5 +270,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
     public function getUserIdentifier(): string
     {
         return $this->email;
+    }
+
+    /**
+     * @return Collection<int, Conversation>
+     */
+    public function getConversations(): Collection
+    {
+        return $this->conversations;
+    }
+
+    public function addConversation(Conversation $conversation): self
+    {
+        if (!$this->conversations->contains($conversation)) {
+            $this->conversations->add($conversation);
+            $conversation->setToUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeConversation(Conversation $conversation): self
+    {
+        if ($this->conversations->removeElement($conversation)) {
+            // set the owning side to null (unless already changed)
+            if ($conversation->getToUser() === $this) {
+                $conversation->setToUser(null);
+            }
+        }
+
+        return $this;
     }
 }
