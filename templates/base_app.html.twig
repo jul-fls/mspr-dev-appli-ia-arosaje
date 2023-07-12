@@ -25,6 +25,12 @@
                     </div>
                     <div id="mainListDiv" class="main_list">
                         <ul class="navlinks">
+                            <li class="text-center position-relative">
+                                <a href="{{path('app_conversation_index')}}" class="text-uppercase">
+                                    <i id="envelope-icon" class="fa-solid fa-envelope"></i>
+                                </a>
+                                {{ render(controller('App\\Controller\\NavbarController::unreadMessages')) }}
+                            </li>
                             <li class="text-center">
                                 <a href="{{ path('app_user_logout')}}" class="text-uppercase" title="Se déconnecter"><i class="fas fa-sign-out-alt"></i></a>
                             </li>

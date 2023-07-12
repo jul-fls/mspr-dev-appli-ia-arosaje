@@ -1,33 +1,65 @@
-<!DOCTYPE html>
+{% extends 'base_app.html.twig' %}
 
-<title>Conversation index</title>
+{% block title %}Conversation A'rosa-je{% endblock %}
 
 {% block body %}
-    <h1>Conversation index</h1>
+<!-- Mailbox -->
+    <section class="mailbox pt-3 ">
+        <h2 class="title text-center display-2 mb-5">Boîte de réception</h2>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for conversation in conversations %}
-            <tr>
-                <td>{{ conversation.id }}</td>
-                <td>
-                    <a href="{{ path('app_conversation_show', {'id': conversation.id}) }}">show</a>
-                    <a href="{{ path('app_conversation_edit', {'id': conversation.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="2">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+        <div class="row text-center gx-5 gy-5 mx-3">
+            {% for conversation in conversations %}
+                {% if conversation.from_user.id == app.session.get('user').id %}
+                    {% set conversation_name = conversation.to_user.first_name ~ ' ' ~ conversation.to_user.last_name %}
+                {% else %}
+                    {% set conversation_name = conversation.from_user.first_name ~ ' ' ~ conversation.from_user.last_name %}
+                {% endif %}
 
-    <a href="{{ path('app_conversation_new') }}">Create new</a>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4"> <!-- card -->
+                    {% set lastMessage = conversation.messages|last %}
+                    {% if lastMessage %}
+                        {% if lastMessage.view_at is null and lastMessage.sender.id != app.session.get('user').id %}
+                            <div class="card m-auto unread">
+                        {% else %}
+                            <div class="card m-auto">
+                        {% endif %}
+                    {% else %}
+                        <div class="card m-auto">
+                    {% endif %}
+                        <img alt="img-plant_id" draggable="false" src="{{ conversation.plant_id.image }}" title="{{ conversation.plant_id.plant_name }}">
+                        <div class="card-body">
+                            <h3 class="card-title">{{ conversation_name }}</h3>
+                            {% if lastMessage %}
+                                <p class="card-description text-muted">{{ lastMessage.sent_at|date('d/m/Y H:i:s') }}</p>
+                                <div class="card-text text-truncate py-3">
+                                    {{ lastMessage.content }}
+                                </div>
+                            {% else %}
+                                <p class="card-description text-muted">Aucun message</p>
+                                <div class="card-text text-truncate py-3">
+                                    Aucun message
+                                </div>
+                            {% endif %}
+                            
+                            <i class="bi bi-envelope-exclamation-fill new-message-icon position-absolute"></i>
+                            <a href="{{ path('app_conversation_show', {'id': conversation.id}) }}">
+                                <button type="button" class="btn">
+                                    <i class="bi bi-chat-right-quote-fill"></i>
+                                    Ouvrir la conversation
+                                </button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <tr>
+                    <td colspan="2">no records found</td>
+                </tr>
+            {% endfor %}
+        </div>
+    </section>
+    <!-- /Mailbox -->
+{% endblock %}
+{% block footer %}
+	{% include 'footer_app.html.twig' %}
 {% endblock %}

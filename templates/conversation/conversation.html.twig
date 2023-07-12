@@ -1,0 +1,62 @@
+{% extends 'base_app.html.twig' %}
+
+{% block title %}Conversation A'rosa-je{% endblock %}
+
+{% block body %}
+	<!-- Nav Conversation -->
+	<div class="menu">
+		<div class="back">
+			<a href="{{ path('app_conversation_index') }}" style="color:white;"><i class="fa fa-chevron-left"></i></a>
+			<img alt="img-plant_id" draggable="false" src="{{ conversation.plant_id.image }}">
+		</div>
+		{% if conversation.from_user.id == app.session.get('user').id %}
+            {% set conversation_name = conversation.to_user.first_name ~ ' ' ~ conversation.to_user.last_name %}
+        {% else %}
+            {% set conversation_name = conversation.from_user.first_name ~ ' ' ~ conversation.from_user.last_name %}
+        {% endif %}
+		<div class="name">{{ conversation_name }}</div>
+		{% set lastMessage = conversation.messages|last %}
+        {% if lastMessage %}
+		<div class="last">{{ lastMessage.sent_at|date('d/m/Y H:i') }}</div>
+		{% endif %}
+	</div>
+	<!-- /Nav Conversation-->
+	<!-- Conversation -->
+	<section class="conversation-container pt-3">
+		<div class="conversation-wrap">
+			{% set currentDate = null %}
+			{% for message in conversation.messages %}
+				{% set messageDate = message.sent_at|date('d/m/Y') %}
+				{% if currentDate != messageDate %}
+					<div class="date-line">{{ messageDate }}</div>
+					{% set currentDate = messageDate %}
+				{% endif %}
+				<div class="conversation-block {% if message.sender.id == app.session.get('user').id %}sender{% else %}recepient{% endif %}">
+					<div class="bubble">
+						{{ message.content }}
+					</div>
+					<div class="time">{{ message.sent_at|date('H:i') }}</div>
+				</div>
+			{% endfor %}
+		</div>
+	</section>
+	<div class="send-message-container">
+		<div class="row height d-flex justify-content-center align-items-center">
+			<div class="col-md-12">
+				<div class="send-message">
+					<form action="{{ path('app_message_new') }}" method="POST" name="message">
+						<input type="hidden" name="message[_token]" value="{{ csrf_token('message') }}"/>
+						<input type="hidden" name="message[conversation]" value="{{ conversation.id }}"/>
+						<input type="text" class="form-control" name="message[content]" placeholder="Ecrivez votre message ici">
+						<button class="btn" type="submit">Envoyer</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /Conversation -->
+{% endblock %}
+
+{% block footer %}
+	{% include 'footer_app.html.twig' %}
+{% endblock %}

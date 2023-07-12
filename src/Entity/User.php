@@ -78,11 +78,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
     #[ORM\OneToMany(mappedBy: 'to_user', targetEntity: Conversation::class, orphanRemoval: true)]
     private Collection $conversations;
 
+    #[ORM\OneToMany(mappedBy: 'sender', targetEntity: Message::class, orphanRemoval: true)]
+    private Collection $messages;
+
     public function __construct()
     {
         $this->plants = new ArrayCollection();
         $this->guardings = new ArrayCollection();
         $this->conversations = new ArrayCollection();
+        $this->messages = new ArrayCollection();
     }
 
 
@@ -296,6 +300,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
             // set the owning side to null (unless already changed)
             if ($conversation->getToUser() === $this) {
                 $conversation->setToUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Message>
+     */
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(Message $message): self
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages->add($message);
+            $message->setSender($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(Message $message): self
+    {
+        if ($this->messages->removeElement($message)) {
+            // set the owning side to null (unless already changed)
+            if ($message->getSender() === $this) {
+                $message->setSender(null);
             }
         }
 

@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Message;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -13,9 +14,10 @@ class MessageType extends AbstractType
     {
         $builder
             ->add('content')
-            ->add('sent_at')
-            ->add('view_at')
-            ->add('reply_to_message')
+            ->add('view_at', DateTimeType::class, [
+                'required' => false,
+            ])
+            ->add('conversation')
         ;
     }
 

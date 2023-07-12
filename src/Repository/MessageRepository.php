@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Message;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use phpDocumentor\Reflection\Types\Integer;
 
 /**
  * @extends ServiceEntityRepository<Message>
@@ -39,28 +40,27 @@ class MessageRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return Message[] Returns an array of Message objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('m.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function findUnreadMessages(int $user_id): array
+    {
+        return $this->createQueryBuilder('m')
+            ->where('m.view_at IS NULL')
+            ->andWhere('m.sender != :user_id')
+            ->setParameter('user_id', $user_id)
+            ->getQuery()
+            ->getResult();
+    }
 
-//    public function findOneBySomeField($value): ?Message
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function markMessagesAsRead(?int $conversation_id, int $user_id)
+    {
+        $qb = $this->createQueryBuilder('m');
+        $qb->update()
+            ->set('m.view_at', 'CURRENT_TIMESTAMP()')
+            ->where('m.conversation = :conversation_id')
+            ->andWhere('m.sender != :user_id')
+            ->andWhere('m.view_at IS NULL')
+            ->setParameter('conversation_id', $conversation_id)
+            ->setParameter('user_id', $user_id)
+            ->getQuery()
+            ->execute();
+    }
 }

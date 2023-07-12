@@ -92,7 +92,7 @@
 	</div>
 	<!-- /2) Modal : Publish -> Unpublish -->
 
-	<!-- 3) Modal : Send Message -->
+	{# <!-- 3) Modal : Send Message -->
 	<div class="modal fade" id="sendMessageModal" tabindex="-1" aria-labelledby="sendMessageModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-fullscreen-md-down">
 			<div class="modal-content">
@@ -114,7 +114,7 @@
 				</div>
 			</div>
 		</div>
-	</div>
+	</div> #}
 	<!-- /3) Modal : Send Message -->
 
 	<!-- 4) Modal : Upload -->
@@ -303,9 +303,16 @@
 							<h5 class="card-title">{{plant.plant_name}}</h5>
 							<p class="card-description text-muted">{{plant.family_name}}</p>
 							<p class="card-text">{{plant.description}}</p>
-							<button type="button" class="btn " data-bs-toggle="modal" data-bs-target="#sendMessageModal" data-to-owner="{{plant.owner.email}}" data-plant-name="{{plant.plant_name}}">
-								<i class="bi bi-envelope-fill"></i>
-								Contacter</button>
+							<form method="post" name="conversation" action="{{ path('app_conversation_new') }}">
+								<input type="hidden" name="conversation[_token]" value="{{ csrf_token('conversation') }}"/>
+								<input type="hidden" name="conversation[from_user]" value="{{ app.session.get('user').id }}"/>
+								<input type="hidden" name="conversation[to_user]" value="{{ plant.owner.id }}"/>
+								<input type="hidden" name="conversation[plant_id]" value="{{ plant.id }}"/>
+								<button type="submit" class="btn">
+									<i class="bi bi-envelope-fill"></i>
+									Contacter
+								</button>
+							</form>
 						</div>
 					</div>
 				</div>
