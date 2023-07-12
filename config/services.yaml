@@ -6,6 +6,7 @@
 parameters:
     plantnet_api_key: '%env(PLANTNET_API_KEY)%'
     plantnet_api_url: '%env(PLANTNET_API_URL)%'
+    timezone: '%env(APP_TIMEZONE)%'
 services:
     # default configuration for services in *this* file
     _defaults:
