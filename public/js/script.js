@@ -294,42 +294,44 @@ var messageTextArea = document.getElementById('message-text');
 var sendButton = document.getElementsByClassName('btn-send')[0];
 let recipient = "";
 let plantName = "";
+if(sendMessageModal != null && messageTextArea != null && sendButton != null) {
+    sendMessageModal.addEventListener('show.bs.modal', event => {
 
-sendMessageModal.addEventListener('show.bs.modal', event => {
-
-  const button = event.relatedTarget;
-  recipient = button.getAttribute('data-to-owner');
-  plantName = button.getAttribute('data-plant-name');
-
-  const modalTitle = sendMessageModal.querySelector('.modal-title')
-  modalTitle.textContent = `New message to ${recipient}`
-  messageTextArea.value = "";
-
-})
-
-sendButton.addEventListener('click', function() {
-    sendMail(recipient, plantName);
-})
-
-function sendMail(recipient,plantName) {
-    var message = document.getElementById("message-text").value;
-    let subject = "Message à propos de votre plante " + plantName 
-    var mailtoLink = "mailto:"+recipient+"?subject="+subject+"&body=" + encodeURIComponent(message);
-    window.location.href = mailtoLink;
+        const button = event.relatedTarget;
+        recipient = button.getAttribute('data-to-owner');
+        plantName = button.getAttribute('data-plant-name');
+      
+        const modalTitle = sendMessageModal.querySelector('.modal-title')
+        modalTitle.textContent = `New message to ${recipient}`
+        messageTextArea.value = "";
+      
+      })
+      
+      sendButton.addEventListener('click', function() {
+          sendMail(recipient, plantName);
+      })
+      
+      function sendMail(recipient,plantName) {
+          var message = document.getElementById("message-text").value;
+          let subject = "Message à propos de votre plante " + plantName 
+          var mailtoLink = "mailto:"+recipient+"?subject="+subject+"&body=" + encodeURIComponent(message);
+          window.location.href = mailtoLink;
+      }
 }
 
 // --------------------------------------------------------------
 // Modal - Upload
 // --------------------------------------------------------------
 const uploadModal = document.getElementById('uploadModal')
-uploadModal.addEventListener('show.bs.modal', event => {
-  const button = event.relatedTarget
-  const owner = button.getAttribute('data-owner-id')
-  const modalTitle = uploadModal.querySelector('.modal-title')
+if(uploadModal != null) {
+    uploadModal.addEventListener('show.bs.modal', event => {
+    const button = event.relatedTarget
+    const owner = button.getAttribute('data-owner-id')
+    const modalTitle = uploadModal.querySelector('.modal-title')
 
-  modalTitle.textContent = 'Uploader une plante'
-})
-
+    modalTitle.textContent = 'Uploader une plante'
+    })
+}
 // --------------------------------------------------------------
 // Tooltip
 // --------------------------------------------------------------
@@ -355,71 +357,10 @@ function readFile(input_element) {
         FR.readAsDataURL(input_element.files[0]);
     });
 }
-
-document.querySelector("#input_photo_upload").addEventListener("change",event => {
-    const img_preview = document.querySelector("#img_upload")
-    const imgb64 = document.querySelector("#imgb64_upload")
-    readFile(event.target)
-    .then((b64) => {
-        img_preview.src = b64;
-        imgb64.value = b64;
-    })
-    .catch((error) => {
-        console.error(error); // Gérer toute erreur ici
-    });
-});
-
-function dataURLtoFile(dataurl, filename) {
-    const arr = dataurl.split(',');
-    const mime = arr[0].match(/:(.*?);/)[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while(n--){
-        u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], filename, {type: mime});
-}
-
-function check_if_plant_in_input(input_element){
-    return readFile(input_element)
-    .then(async(b64) => {
-        try {
-            const formData = new FormData();
-            let file = dataURLtoFile(b64, 'image.png');
-            formData.append('image', file);
-
-            const response = await fetch(origin+'/plant/identify', {method: 'POST',body: formData});
-            if (response.status === 204) {
-                return false;
-            } else if (response.ok) {
-                return true;
-            } else {
-                throw new Error('Identification request failed');
-            }
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
-    });
-}
-
-
-
-document.querySelector("#input_photo_modify").addEventListener("change", async function(event) {
-    const img_preview = document.querySelector("#img_modify")
-    const imgb64 = document.querySelector("#imgb64_modify")
-    const loadingModal = Swal.fire({
-        title: 'Identification en cours par notre IA !',
-        html: '<div class="text-center"><div class="spinner-border" role="status"></div><h3></h3></div>',
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        onBeforeOpen: () => {
-            Swal.showLoading();
-        },
-    });
-    let is_plant = await check_if_plant_in_input(event.target);
-    if (is_plant) {
+if(document.querySelector("#input_photo_upload") != null) {
+    document.querySelector("#input_photo_upload").addEventListener("change",event => {
+        const img_preview = document.querySelector("#img_upload")
+        const imgb64 = document.querySelector("#imgb64_upload")
         readFile(event.target)
         .then((b64) => {
             img_preview.src = b64;
@@ -428,79 +369,155 @@ document.querySelector("#input_photo_modify").addEventListener("change", async f
         .catch((error) => {
             console.error(error); // Gérer toute erreur ici
         });
-    } else {
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            html: '<h3>Aucune plante n\'a été détectée !</h3>',
-            confirmButtonColor: '#15803d',
-        });
-        event.target.value = "";
-    }
-    loadingModal.close();
-});
-
-// --------------------------------------------------------------
-// PlantNet API
-// --------------------------------------------------------------
-
-
-document.querySelector("#input_photo_upload").addEventListener("change", async function(e) {
-    const file = e.target.files[0];
-    console.log(file);
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('image', file);
-
-    const loadingModal = Swal.fire({
-        title: 'Identification en cours',
-        html: '<div class="text-center"><div class="spinner-border" role="status"></div><h3>Identification en cours par notre IA!</h3></div>',
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        onBeforeOpen: () => {
-            Swal.showLoading();
-        },
     });
 
-    try {
-        const response = await fetch(origin+'/plant/identify', {method: 'POST',body: formData});
+    function dataURLtoFile(dataurl, filename) {
+        const arr = dataurl.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new File([u8arr], filename, {type: mime});
+    }
 
-        if (response.status === 204) {
+    function check_if_plant_in_input(input_element){
+        return readFile(input_element)
+        .then(async(b64) => {
+            try {
+                const formData = new FormData();
+                let file = dataURLtoFile(b64, 'image.png');
+                formData.append('image', file);
+
+                const response = await fetch(origin+'/plant/identify', {method: 'POST',body: formData});
+                if (response.status === 204) {
+                    return false;
+                } else if (response.ok) {
+                    return true;
+                } else {
+                    throw new Error('Identification request failed');
+                }
+            } catch (error) {
+                console.error(error);
+                throw error;
+            }
+        });
+    }
+
+
+
+    document.querySelector("#input_photo_modify").addEventListener("change", async function(event) {
+        const img_preview = document.querySelector("#img_modify")
+        const imgb64 = document.querySelector("#imgb64_modify")
+        const loadingModal = Swal.fire({
+            title: 'Identification en cours par notre IA !',
+            html: '<div class="text-center"><div class="spinner-border" role="status"></div><h3></h3></div>',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            onBeforeOpen: () => {
+                Swal.showLoading();
+            },
+        });
+        let is_plant = await check_if_plant_in_input(event.target);
+        if (is_plant) {
+            readFile(event.target)
+            .then((b64) => {
+                img_preview.src = b64;
+                imgb64.value = b64;
+            })
+            .catch((error) => {
+                console.error(error); // Gérer toute erreur ici
+            });
+        } else {
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
                 html: '<h3>Aucune plante n\'a été détectée !</h3>',
                 confirmButtonColor: '#15803d',
             });
-            document.getElementById("inp").value = "";
-            document.getElementById("img").src = "";
-        } else if (response.ok) {
-            const jsonResponse = await response.json();
-            const plantResult = jsonResponse.results[0];
-
-            const plantNameInput = document.querySelector("#plant_name");
-            const scientificNameInput = document.querySelector("#scientific_name");
-            const familyNameInput = document.querySelector("#family_name");
-            const gbifIdInput = document.querySelector("#gbif_id");
-
-            plantNameInput.value = plantResult.species.commonNames[0];
-            scientificNameInput.value = plantResult.species.scientificNameWithoutAuthor;
-            familyNameInput.value = plantResult.species.family.scientificNameWithoutAuthor;
-            if(plantResult.gbif != null){
-                gbifIdInput.value = plantResult.gbif.id;
-            } else {
-                gbifIdInput.value = "0";
-            }
-            document.getElementById("aifields").classList.remove("d-none");
-        } else {
-            throw new Error('Identification request failed');
+            event.target.value = "";
         }
-    } catch (error) {
-        console.error(error);
-        // Handle error case here
-    } finally {
-        // Close the loading modal
         loadingModal.close();
-    }
+    });
+
+    // --------------------------------------------------------------
+    // PlantNet API
+    // --------------------------------------------------------------
+
+
+    document.querySelector("#input_photo_upload").addEventListener("change", async function(e) {
+        const file = e.target.files[0];
+        console.log(file);
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const loadingModal = Swal.fire({
+            title: 'Identification en cours',
+            html: '<div class="text-center"><div class="spinner-border" role="status"></div><h3>Identification en cours par notre IA!</h3></div>',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            onBeforeOpen: () => {
+                Swal.showLoading();
+            },
+        });
+
+        try {
+            const response = await fetch(origin+'/plant/identify', {method: 'POST',body: formData});
+
+            if (response.status === 204) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    html: '<h3>Aucune plante n\'a été détectée !</h3>',
+                    confirmButtonColor: '#15803d',
+                });
+                document.getElementById("inp").value = "";
+                document.getElementById("img").src = "";
+            } else if (response.ok) {
+                const jsonResponse = await response.json();
+                const plantResult = jsonResponse.results[0];
+
+                const plantNameInput = document.querySelector("#plant_name");
+                const scientificNameInput = document.querySelector("#scientific_name");
+                const familyNameInput = document.querySelector("#family_name");
+                const gbifIdInput = document.querySelector("#gbif_id");
+
+                plantNameInput.value = plantResult.species.commonNames[0];
+                scientificNameInput.value = plantResult.species.scientificNameWithoutAuthor;
+                familyNameInput.value = plantResult.species.family.scientificNameWithoutAuthor;
+                if(plantResult.gbif != null){
+                    gbifIdInput.value = plantResult.gbif.id;
+                } else {
+                    gbifIdInput.value = "0";
+                }
+                document.getElementById("aifields").classList.remove("d-none");
+            } else {
+                throw new Error('Identification request failed');
+            }
+        } catch (error) {
+            console.error(error);
+            // Handle error case here
+        } finally {
+            // Close the loading modal
+            loadingModal.close();
+        }
+    });
+}
+// --------------------------------------------------------------
+// Icon Change on Hover
+// --------------------------------------------------------------
+var envelopeIcon = document.getElementById('envelope-icon');
+
+envelopeIcon.addEventListener('mouseover', function() {
+  envelopeIcon.classList.remove('fa-envelope');
+  envelopeIcon.classList.add('fa-envelope-open');
+});
+
+envelopeIcon.addEventListener('mouseout', function() {
+  envelopeIcon.classList.remove('fa-envelope-open');
+  envelopeIcon.classList.add('fa-envelope');
 });
