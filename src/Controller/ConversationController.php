@@ -31,8 +31,14 @@ class ConversationController extends AbstractController
         } catch (AccessDeniedException $e) {
             return $this->json(['message' => $e->getMessage()], 403);
         }
+
+        //find all conversations in which the user is the sender or the receiver but don't show if the user is not the sender or the receiver
+        $user_conversations = $conversationRepository->findBy(['from_user' => $request->getSession()->get('user')->getId()]);
+        $user_conversations2 = $conversationRepository->findBy(['to_user' => $request->getSession()->get('user')->getId()]);
+        $conversations = array_merge($user_conversations, $user_conversations2);
+        $conversations = array_unique($conversations, SORT_REGULAR);
         return $this->render('conversation/index.html.twig', [
-            'conversations' => $conversationRepository->findAll(),
+            'conversations' => $conversations,
         ]);
     }
 

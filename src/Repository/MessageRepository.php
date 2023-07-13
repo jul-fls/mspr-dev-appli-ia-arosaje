@@ -43,12 +43,15 @@ class MessageRepository extends ServiceEntityRepository
     public function findUnreadMessages(int $user_id): array
     {
         return $this->createQueryBuilder('m')
+            ->join('m.conversation', 'c')
             ->where('m.view_at IS NULL')
+            ->andWhere('c.from_user = :user_id OR c.to_user = :user_id')
             ->andWhere('m.sender != :user_id')
             ->setParameter('user_id', $user_id)
             ->getQuery()
             ->getResult();
     }
+
 
     public function markMessagesAsRead(?int $conversation_id, int $user_id)
     {
