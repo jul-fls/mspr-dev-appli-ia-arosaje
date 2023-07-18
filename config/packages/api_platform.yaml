@@ -1,0 +1,20 @@
+api_platform:
+    swagger:
+        api_keys:
+            apiKey:
+                name: Authorization
+                type: header
+    title: 'My Arosaje Api'
+    description: 'Arosaje API'
+    version: '1.0.0'
+    mapping:
+        paths: ['%kernel.project_dir%/src/Entity']
+    formats:
+        json:
+            mime_types: ['application/json']
+        jsonld:
+            mime_types: ['application/ld+json']
+        html:
+            mime_types: ['text/html']
+        multipart:
+            mime_types: ['multipart/form-data']
