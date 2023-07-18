@@ -80,7 +80,7 @@ class PlantController extends AbstractController
     public function get_json(Plant $plant, Request $request): Response
     {
         try {
-            $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Botaniste');
+            $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Utilisateur');
         } catch (AccessDeniedException $e) {
             return $this->json(['message' => $e->getMessage()], 403);
         }
