@@ -26,10 +26,12 @@ RUN a2enmod rewrite
 RUN chown -R www-data:www-data .
 
 # Installer Symfony CLI
-WORKDIR /root
 RUN apt-get update && apt-get install -y wget gnupg acl
 RUN wget https://get.symfony.com/cli/installer -O - | bash
 RUN mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
+
+# Créer un fichier .env vide
+RUN touch .env
 
 # Démarrer le serveur Apache
 CMD ["/usr/local/bin/symfony", "server:start", "--no-tls", "--port=8000", "--dir=/var/www/html/public"]

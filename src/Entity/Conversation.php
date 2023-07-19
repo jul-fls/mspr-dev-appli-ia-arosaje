@@ -37,17 +37,17 @@ class Conversation
     #[Groups(['conversation:list', 'conversation:item'])]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'conversations')]
+    #[ORM\ManyToOne(inversedBy: 'conversationsTo',targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['conversation:list', 'conversation:item'])]
     public ?User $to_user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'conversations')]
+    #[ORM\ManyToOne(inversedBy: 'conversationsFrom',targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['conversation:list', 'conversation:item'])]
     public ?User $from_user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'conversations')]
+    #[ORM\ManyToOne(inversedBy: 'conversations',targetEntity: Plant::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['conversation:list', 'conversation:item'])]
     public ?Plant $plant_id = null;

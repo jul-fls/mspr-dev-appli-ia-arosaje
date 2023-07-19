@@ -16,7 +16,7 @@
                                 </div>
                                 <div class="col-lg-6 px-xl-10">
                                     <form action="{{path('app_user_edit_profile')}}" method="post" name="usermodify">
-                                        <input type="hidden" name="user[_token]" value="{{ csrf_token('user') }}" />
+                                        <input type="hidden" name="usermodify[_token]" value="{{ csrf_token('usermodify') }}" />
                                         <div class="bg-secondary d-lg-inline-block py-1-9 px-1-9 px-sm-6 mb-1-9 rounded">
                                             <h3 class="h2 text-white mb-0">{{ app.session.get('user') }}</h3>
                                         </div>
@@ -83,6 +83,12 @@
                                             </li>
                                             <li class="mb-4 mb-xl-3 display-28 center my-3">
                                                 <button class="button btn btn-send btn-lg" type="submit">Sauvegarder</button>
+                                            </li>
+                                            <li class="mb-4 mb-xl-3 display-28 center my-3">
+                                                <button class="button btn btn-send btn-lg" type="button">
+                                                    <i class="fas fa-download"></i>
+                                                    <a class="text-decoration-none text-white" href="{{path('app_user_export_rgpd')}}">Télécharger mes données (RGPD) (Json)</a>
+                                                </button>
                                             </li>
                                         </ul>
                                     </form>

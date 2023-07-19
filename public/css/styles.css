@@ -426,6 +426,17 @@ button.btn-save:hover {
 	font-size: 14px;
 }
 
+.gpdr:hover {
+    color: var(--light-green);
+    cursor: pointer;
+}
+
+.btn-gdpr{
+    background-color: var(--green);
+    color: var(--white);
+    font-size:2rem;
+}
+
 /* Footer */
 @media screen and (max-width: 650px) {
 	.footer-profil footer section {

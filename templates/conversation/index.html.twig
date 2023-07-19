@@ -52,9 +52,21 @@
                     </div>
                 </div>
             {% else %}
-                <tr>
-                    <td colspan="2">no records found</td>
-                </tr>
+                <script>
+                    Swal.fire({
+                        icon: 'info',
+                        iconColor: '#15803D',
+                        title: 'Aucune conversation',
+                        html: "Vous n'avez aucune conversation pour le moment<br/>Commencez à discuter avec d'autres utilisateurs !",
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#15803D',
+                    })
+                    .then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "{{ path('app_home') }}";
+                        }
+                    })
+                </script>
             {% endfor %}
         </div>
     </section>

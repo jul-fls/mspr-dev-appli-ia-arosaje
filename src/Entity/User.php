@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\GetCollection;
+use Doctrine\ORM\PersistentCollection;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -16,6 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Doctrine\Common\Persistence\Proxy;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(
@@ -41,7 +43,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
     #[Groups(['user:list', 'user:item'])]
     public ?string $password = null;
 
-    #[ORM\Column(length: 255, nullable: false)]
+    #[ORM\Column(length: 255, nullable: false, unique: true)]
     #[Groups(['user:list', 'user:item'])]
     public ?string $email = null;
 
@@ -58,13 +60,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
     public ?string $address_country = null;
 
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Plant::class, orphanRemoval: true)]
+    #[Groups(['user:list', 'user:item'])]
     public Collection $plants;
 
     #[ORM\ManyToOne(inversedBy: 'users')]
     #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['user:list', 'user:item'])]
     public ?Role $role = null;
 
     #[ORM\OneToMany(mappedBy: 'guardian', targetEntity: Guarding::class, orphanRemoval: true)]
+    #[Groups(['user:list', 'user:item'])]
     public Collection $guardings;
 
     #[ORM\Column(length: 255,nullable: false)]
@@ -75,7 +80,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
     #[Groups(['user:list', 'user:item'])]
     public ?string $last_name = null;
 
-    #[ORM\OneToMany(mappedBy: 'to_user', targetEntity: Conversation::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'to_user', targetEntity: Conversation::class, orphanRemoval: true,fetch: 'EAGER')]
+    #[Groups(['user:list', 'user:item'])]
+    private Collection $conversationsTo;
+
+    #[ORM\OneToMany(mappedBy: 'from_user', targetEntity: Conversation::class, orphanRemoval: true,fetch: 'EAGER')]
+    #[Groups(['user:list', 'user:item'])]
+    private Collection $conversationsFrom;
+
     private Collection $conversations;
 
     #[ORM\OneToMany(mappedBy: 'sender', targetEntity: Message::class, orphanRemoval: true)]
@@ -88,7 +100,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
         $this->conversations = new ArrayCollection();
         $this->messages = new ArrayCollection();
     }
-
 
     public function getId(): ?int
     {
@@ -276,12 +287,48 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
         return $this->email;
     }
 
-    /**
-     * @return Collection<int, Conversation>
-     */
     public function getConversations(): Collection
     {
-        return $this->conversations;
+        $conversationsFrom = $this->conversationsFrom ?? new ArrayCollection();
+        $conversationsTo = $this->conversationsTo ?? new ArrayCollection();
+
+        return new ArrayCollection(
+            array_merge(
+                $conversationsFrom->toArray(),
+                $conversationsTo->toArray()
+            )
+        );
+    }
+
+    public function getConversationsFrom(): Collection
+    {
+        return $this->conversationsFrom ?? new ArrayCollection();
+    }
+
+    public function setConversationsFrom(Collection $conversationsFrom): self
+    {
+        $this->conversationsFrom = $conversationsFrom;
+
+        return $this;
+    }
+
+    public function setConversationsTo(Collection $conversationsTo): self
+    {
+        $this->conversationsTo = $conversationsTo;
+
+        return $this;
+    }
+
+    public function setMessages(Collection $messages): self
+    {
+        $this->messages = $messages;
+
+        return $this;
+    }
+
+    public function getConversationsTo(): Collection
+    {
+        return $this->conversationsTo ?? new ArrayCollection();
     }
 
     public function addConversation(Conversation $conversation): self
@@ -294,7 +341,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
         return $this;
     }
 
-    public function removeConversation(Conversation $conversation): self
+    public function removeConversationFrom(Conversation $conversation): self
     {
         if ($this->conversations->removeElement($conversation)) {
             // set the owning side to null (unless already changed)

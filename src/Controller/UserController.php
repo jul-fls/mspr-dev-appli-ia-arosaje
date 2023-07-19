@@ -51,7 +51,6 @@ class UserController extends AbstractController
     
         if ($form->isSubmitted() && $form->isValid()) {
             $user_role = $this->entityManager->getRepository('App\Entity\Role')->find(2);
-            dump($user_role); // Affichez le rôle pour vérifier qu'il a été récupéré correctement
             $user->setRole($user_role);
             $plaintextPassword = $user->getPassword();
             //cast the user to the UserPasswordHasherInterface
@@ -109,30 +108,34 @@ class UserController extends AbstractController
     }
 
     #[Route('/edit_profile', name: 'app_user_edit_profile', methods: ['GET', 'POST'])]
-    public function edit_profile(Request $request, UserRepository $userRepository,EntityManagerInterface $entityManager): Response
+    public function edit_profile(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
         try {
             $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Utilisateur');
         } catch (AccessDeniedException $e) {
             return $this->json(['message' => $e->getMessage()], 403);
         }
-        $session = $request->getSession();
-        $user = $session->get('user');
         
-        $user = $entityManager->merge($user);
-        $roles = $entityManager->getRepository('App\Entity\Role')->findAll();
+        $session = $request->getSession();
+        $userId = $session->get('user')->getId();
+        $user = $userRepository->find($userId);
+
+        $roles = $entityManager->getRepository('App\Entity\Role')->findAll();   
 
         $form = $this->createForm(UsermodifyType::class, $user);
         $form->handleRequest($request);
-    
+
         if ($form->isSubmitted() && $form->isValid()) {
+            dump($user);
             $userRepository->save($user, true);
             $session->set('user', $user);
+
             return $this->redirectToRoute('app_user_edit_profile', [], Response::HTTP_SEE_OTHER);
-        }else if($form->isSubmitted() && !$form->isValid()){
+        } else if ($form->isSubmitted() && !$form->isValid()) {
             $this->addFlash('error', 'The form is not valid');
+            dump($form->getErrors(true));
         }
-    
+
         return $this->renderForm('user/edit_profile.html.twig', [
             'user_id' => $user->getId(),
             'roles' => $roles,
@@ -215,5 +218,51 @@ class UserController extends AbstractController
         // Redirect to the index page
         return $this->redirectToRoute('app_home');
     }
+    
+    #[Route('/export_rgpd', name: 'app_user_export_rgpd', methods: ['GET'])]
+    public function export_rgpd(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        try {
+            $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Utilisateur');
+        } catch (AccessDeniedException $e) {
+            return $this->json(['message' => $e->getMessage()], 403);
+        }
 
+        $userId = $request->getSession()->get('user')->getId();
+
+        $queryBuilder = $entityManager->createQueryBuilder()
+            ->select('u, cf, ct, m')
+            ->from(User::class, 'u')
+            ->leftJoin('u.conversationsFrom', 'cf')
+            ->leftJoin('u.conversationsTo', 'ct')
+            ->leftJoin('u.messages', 'm')
+            ->where('u.id = :userId')
+            ->setParameter('userId', $userId);
+
+        $user = $queryBuilder->getQuery()->getOneOrNullResult();
+
+        if (!$user) {
+            throw $this->createNotFoundException('User not found');
+        }
+
+        $user_data = [
+            'id' => $user->getId(),
+            'email' => $user->getEmail(),
+            'address_city' => $user->getAddressCity(),
+            'address_zipcode' => $user->getAddressZipcode(),
+            'address_country' => $user->getAddressCountry(),
+            'role' => $user->getRole(),
+            'conversations_from' => $user->getConversationsFrom()->toArray(),
+            'conversations_to' => $user->getConversationsTo()->toArray(),
+            'messages' => $user->getMessages()->toArray(),
+        ];
+
+        // Télécharger en tant que fichier JSON
+        $filename = 'user_export_rgpd_'.date('Ymd').'_'.$user->getLastName().'.json';
+        $response = new Response(json_encode($user_data));
+        $response->headers->set('Content-Type', 'application/json');
+        $response->headers->set('Content-Disposition', 'attachment;filename="'.$filename.'"');
+
+        return $response;
+    }
 }

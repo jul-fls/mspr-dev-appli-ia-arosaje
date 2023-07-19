@@ -6,6 +6,7 @@ use App\Entity\Conversation;
 use App\Form\ConversationType;
 use App\Repository\ConversationRepository;
 use App\Service\RoleChecker;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,11 +18,16 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 #[Route('/conversation')]
 class ConversationController extends AbstractController
 {
-    public function __construct(
-        private RequestStack $requestStack,
-        private ManagerRegistry $doctrine,
-        private RoleChecker $roleChecker
-    ) {}
+    private $entityManager;
+    private $roleChecker;
+    private $doctrine;
+    private $requestStack;
+    public function __construct(RequestStack $requestStack,ManagerRegistry $doctrine, RoleChecker $roleChecker, EntityManagerInterface $entityManager) {
+        $this->requestStack = $requestStack;
+        $this->doctrine = $doctrine;
+        $this->roleChecker = $roleChecker;
+        $this->entityManager = $entityManager;
+    }
 
     #[Route('/', name: 'app_conversation_index', methods: ['GET'])]
     public function index(Request $request, ConversationRepository $conversationRepository): Response
@@ -63,7 +69,7 @@ class ConversationController extends AbstractController
 
             // Générer la route vers la page de la conversation précédente
             $route = $this->generateUrl('app_conversation_show', ['id' => $previousConversationId]);
-
+            
             return $this->redirect($route);
         }
 
