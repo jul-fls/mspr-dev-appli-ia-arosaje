@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Plant;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Form\UsermodifyType;
+use App\Repository\ConversationRepository;
 use App\Repository\UserRepository;
 use App\Service\RoleChecker;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,12 +22,13 @@ class UserController extends AbstractController
 {
 
     private $roleChecker;
-
     private $entityManager;
-    public function __construct(EntityManagerInterface $entityManager, RoleChecker $roleChecker)
+    private $conversationRepository;
+    public function __construct(EntityManagerInterface $entityManager, RoleChecker $roleChecker, ConversationRepository $conversationRepository)
     {
         $this->entityManager = $entityManager;
         $this->roleChecker = $roleChecker;
+        $this->conversationRepository = $conversationRepository;
     }
 
 
@@ -45,7 +48,8 @@ class UserController extends AbstractController
     #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
     public function new(Request $request, UserRepository $userRepository,UserPasswordHasherInterface $passwordHasher): Response
     {
-        $user = new User();
+        $entityManager = $this->entityManager;
+        $user = new User($entityManager);
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
     
@@ -265,4 +269,24 @@ class UserController extends AbstractController
 
         return $response;
     }
+
+    #[Route('/get_conversation_from_user_for_plant/{user}/{plant}', name: 'app_user_get_conversation_from_user_for_plant', methods: ['GET'])]
+    public function getConversationFromUserForPlant(Request $request, User $user, Plant $plant): Response
+    {
+        try {
+            $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Utilisateur');
+        } catch (AccessDeniedException $e) {
+            return $this->json(['message' => $e->getMessage()], 403);
+        }
+        $currentUser = $request->getSession()->get('user');
+
+        $conversation = $this->conversationRepository->findConversationByUsersAndPlant($currentUser, $user, $plant);
+
+        if ($conversation) {
+            return $this->json(['conversation_id' => $conversation->getId()]);
+        } else {
+            return $this->json(['conversation_id' => 0]);
+        }
+    }
+
 }

@@ -54,6 +54,38 @@
 			</div>
 		</div>
 	</div>
+    <script>
+		const conversationContainer = document.querySelector('.conversation-wrap');
+		const scrollHeight = conversationContainer.scrollHeight + 2000;
+		const root = document.querySelector(':root');
+		root.setAttribute("style", "scroll-behavior: auto;");
+		// Timeout ensures styles are applied before scrolling
+		setTimeout(function() {
+			window.scrollBy(0, scrollHeight);
+			
+			// Reset to CSS defaults.
+			root.removeAttribute("style");
+		}, 0);
+
+        function checkUnreadMessages(conversationId) {
+            setInterval(() => {
+                fetch(`/conversation/check-unread-messages/${conversationId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const unreadMessagesCount = data.unreadMessagesCount;
+                        if (unreadMessagesCount > 0) {
+                            location.reload();
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Une erreur s'est produite lors de la vérification des nouveaux messages :", error);
+                    });
+            }, 2000); // Vérification toutes les secondes
+        }
+        
+        const conversationId = {{ conversation.id }};
+        checkUnreadMessages(conversationId);
+    </script>
 	<!-- /Conversation -->
 {% endblock %}
 

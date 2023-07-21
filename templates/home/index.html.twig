@@ -291,36 +291,85 @@
 
 <!-- Annonce -->
 <section class="annonce">
-	<h2 class="title text-center display-2 mb-5">Les Annonces</h2>
+    <script>
+        function checkConversation(ownerId, plantId) {
+            return new Promise((resolve, reject) => {
+                fetch(`/user/get_conversation_from_user_for_plant/${ownerId}/${plantId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const conversationId = data.conversation_id;
+                        resolve(conversationId ? parseInt(conversationId) : false);
+                    })
+                    .catch(error => {
+                        console.error("Une erreur s'est produite lors de la récupération de la conversation :", error);
+                        reject(error);
+                    });
+            });
+        }
 
-	<div class="row text-center gx-5 gy-5 mx-3">
-		{% if publishedplants %}
-			{% for plant in publishedplants %}
-				<div class="col-12 col-sm-12 col-md-6 col-lg-4">
-					<div class="card m-auto published">
-						<img src="{{ plant.image }}" alt="img" draggable="false">
-						<div class="card-body">
-							<h5 class="card-title">{{ plant.plant_name }}</h5>
-							<p class="card-description text-muted">{{ plant.family_name }}</p>
-							<p class="card-text">{{ plant.description }}</p>
-							<form method="post" name="conversation" action="{{ path('app_conversation_new') }}">
-								<input type="hidden" name="conversation[_token]" value="{{ csrf_token('conversation') }}"/>
-								<input type="hidden" name="conversation[from_user]" value="{{ app.session.get('user').id }}"/>
-								<input type="hidden" name="conversation[to_user]" value="{{ plant.owner.id }}"/>
-								<input type="hidden" name="conversation[plant_id]" value="{{ plant.id }}"/>
-								<button type="submit" class="btn">
-									<i class="bi bi-envelope-fill"></i>
-									Contacter
-								</button>
-							</form>
-						</div>
-					</div>
-				</div>
-			{% endfor %}
-		{% else %}
-			<h2 class="text-center">Aucune annonce pour le moment</h3>
-		{% endif %}
-	</div>
+        function processPlant(plant) {
+            checkConversation(plant.owner.id, plant.id)
+                .then(conversationId => {
+                    if (conversationId) {
+                        // Conversation exists
+						const buttonTag = document.createElement("button");
+						buttonTag.type = "button";
+						buttonTag.className = "btn";
+						const iconTag = document.createElement("i");
+						iconTag.className = "bi bi-envelope-fill";
+						buttonTag.appendChild(iconTag);
+                        const conversationLink = document.createElement("a");
+						conversationLink.className = "text-white text-decoration-none";
+                        conversationLink.href = "{{ path('app_conversation_show', { id: 'CONVERSATION_ID' }) }}".replace("CONVERSATION_ID", conversationId);
+                        conversationLink.textContent = " Voir la conversation";
+						buttonTag.appendChild(conversationLink);
+                        document.getElementById("conversation-container-" + plant.id).appendChild(buttonTag);
+                    } else {
+                        // Conversation does not exist
+                        const form = document.getElementById("conversation-form-" + plant.id);
+                        form.style.display = "block";
+                    }
+                })
+                .catch(error => {
+                    console.error("Une erreur s'est produite lors de la vérification de la conversation :", error);
+                });
+        }
+    </script>
+
+    <h2 class="title text-center display-2 mb-5">Les Annonces</h2>
+
+    <div class="row text-center gx-5 gy-5 mx-3">
+        {% if publishedplants %}
+            {% for plant in publishedplants %}
+                <div class="col-12 col-sm-12 col-md-6 col-lg-4">
+                    <div class="card m-auto published">
+                        <img src="{{ plant.image }}" alt="img" draggable="false">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ plant.plant_name }}</h5>
+                            <p class="card-description text-muted">{{ plant.family_name }}</p>
+                            <p class="card-text">{{ plant.description }}</p>
+                            <div id="conversation-container-{{ plant.id }}"></div>
+                            <form id="conversation-form-{{ plant.id }}" method="post" name="conversation" action="{{ path('app_conversation_new') }}" style="display: none;">
+                                <input type="hidden" name="conversation[_token]" value="{{ csrf_token('conversation') }}"/>
+                                <input type="hidden" name="conversation[from_user]" value="{{ app.session.get('user').id }}"/>
+                                <input type="hidden" name="conversation[to_user]" value="{{ plant.owner.id }}"/>
+                                <input type="hidden" name="conversation[plant_id]" value="{{ plant.id }}"/>
+                                <button type="submit" class="btn">
+                                    <i class="bi bi-envelope-fill"></i>
+                                    Démarrer une nouvelle conversation
+                                </button>
+                            </form>
+                            <script>
+                                processPlant({{ plant|json_encode|raw }});
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <h2 class="text-center">Aucune annonce pour le moment</h3>
+        {% endif %}
+    </div>
 </section>
 {% endblock %}
 {% block footer %}
