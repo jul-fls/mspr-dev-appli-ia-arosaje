@@ -395,7 +395,14 @@ if(document.querySelector("#input_photo_upload") != null) {
                 if (response.status === 204) {
                     return false;
                 } else if (response.ok) {
-                    return true;
+                    const jsonResponse = await response.json();
+                    const plantResult = jsonResponse.results[0];
+                    const minimalScore = 10/100;
+                    if(plantResult.score < minimalScore){
+                        return false;
+                    }else{
+                        return true;
+                    }
                 } else {
                     throw new Error('Identification request failed');
                 }
@@ -405,8 +412,6 @@ if(document.querySelector("#input_photo_upload") != null) {
             }
         });
     }
-
-
 
     document.querySelector("#input_photo_modify").addEventListener("change", async function(event) {
         const img_preview = document.querySelector("#img_modify")
@@ -449,7 +454,6 @@ if(document.querySelector("#input_photo_upload") != null) {
 
     document.querySelector("#input_photo_upload").addEventListener("change", async function(e) {
         const file = e.target.files[0];
-        console.log(file);
         if (!file) return;
 
         const formData = new FormData();
@@ -475,26 +479,41 @@ if(document.querySelector("#input_photo_upload") != null) {
                     html: '<h3>Aucune plante n\'a été détectée !</h3>',
                     confirmButtonColor: '#15803d',
                 });
-                document.getElementById("inp").value = "";
-                document.getElementById("img").src = "";
+                document.getElementById("input_photo_upload").value = "";
+                document.getElementById("imgb64_upload").value = "";
+                document.getElementById("img_upload").src = "";
+                document.getElementById("aifields").classList.add("d-none");
             } else if (response.ok) {
                 const jsonResponse = await response.json();
                 const plantResult = jsonResponse.results[0];
+                const minimalScore = 10/100;
+                if(plantResult.score < minimalScore){
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        html: '<h3>Aucune plante n\'a été détectée !</h3>',
+                        confirmButtonColor: '#15803d',
+                    });
+                    document.getElementById("input_photo_upload").value = "";
+                    document.getElementById("imgb64_upload").value = "";
+                    document.getElementById("img_upload").src = "";
+                    document.getElementById("aifields").classList.add("d-none");
+                }else{
+                    const plantNameInput = document.querySelector("#plant_name");
+                    const scientificNameInput = document.querySelector("#scientific_name");
+                    const familyNameInput = document.querySelector("#family_name");
+                    const gbifIdInput = document.querySelector("#gbif_id");
 
-                const plantNameInput = document.querySelector("#plant_name");
-                const scientificNameInput = document.querySelector("#scientific_name");
-                const familyNameInput = document.querySelector("#family_name");
-                const gbifIdInput = document.querySelector("#gbif_id");
-
-                plantNameInput.value = plantResult.species.commonNames[0];
-                scientificNameInput.value = plantResult.species.scientificNameWithoutAuthor;
-                familyNameInput.value = plantResult.species.family.scientificNameWithoutAuthor;
-                if(plantResult.gbif != null){
-                    gbifIdInput.value = plantResult.gbif.id;
-                } else {
-                    gbifIdInput.value = "0";
+                    plantNameInput.value = plantResult.species.commonNames[0];
+                    scientificNameInput.value = plantResult.species.scientificNameWithoutAuthor;
+                    familyNameInput.value = plantResult.species.family.scientificNameWithoutAuthor;
+                    if(plantResult.gbif != null){
+                        gbifIdInput.value = plantResult.gbif.id;
+                    } else {
+                        gbifIdInput.value = "0";
+                    }
+                    document.getElementById("aifields").classList.remove("d-none");
                 }
-                document.getElementById("aifields").classList.remove("d-none");
             } else {
                 throw new Error('Identification request failed');
             }
