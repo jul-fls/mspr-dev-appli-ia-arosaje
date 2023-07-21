@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Message;
+use App\Entity\User;
 use App\Form\MessageType;
 use App\Repository\MessageRepository;
 use App\Service\RoleChecker;
@@ -11,8 +12,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Mime\Email;
 
 #[Route('/message')]
 class MessageController extends AbstractController
@@ -36,8 +40,24 @@ class MessageController extends AbstractController
         ]);
     }
 
+    public function sendNewMessageEmail(MailerInterface $mailer, Message $message, User $user_sender, User $other_user)
+    {
+        $email = (new Email())
+            ->from('mailgun@mailgun.flusin.fr')
+            ->to($other_user->getEmail())
+            ->subject('New message from ' . $user_sender->getFirstName() . ' ' . $user_sender->getLastName())
+            ->text("Vous avez reçu un nouveau message de " . $user_sender->getFirstName(). ' ' . $user_sender->getLastName() . " sur la messagerie d'A'rosa-je.")
+            ->html($message->getContent());
+
+            try {
+                $mailer->send($email);
+            } catch (TransportExceptionInterface $e) {
+                dump($e->getMessage()); // Display the error message if there was an issue sending the email
+            }
+    }
+
     #[Route('/new', name: 'app_message_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, MessageRepository $messageRepository): Response
+    public function new(Request $request, MessageRepository $messageRepository, MailerInterface $mailer): Response
     {
         try {
             $this->roleChecker->checkUserRole($request->getSession()->get('user'), 'Utilisateur');
@@ -69,6 +89,9 @@ class MessageController extends AbstractController
             }
             $messageRepository->save($message, true);
 
+            //Send email to the other user of the conversation to tell that a new message has been sent
+            $other_user = $message->getConversation()->getFromUser()->getId() === $user->getId() ? $message->getConversation()->getToUser() : $message->getConversation()->getFromUser();
+            $this->sendNewMessageEmail($mailer, $message, $user_sender, $other_user);
             // Récupérer l'identifiant de la conversation précédente
             $previousConversationId = $message->getConversation()->getId();
 
