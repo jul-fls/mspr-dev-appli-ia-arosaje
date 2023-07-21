@@ -540,3 +540,20 @@ envelopeIcon.addEventListener('mouseout', function() {
   envelopeIcon.classList.remove('fa-envelope-open');
   envelopeIcon.classList.add('fa-envelope');
 });
+
+  // Fonction pour rafraîchir la page
+  function rafraichirPage() {
+    location.reload(); // Recharge la page
+  }
+
+  // Attend que le DOM soit chargé
+  document.addEventListener("DOMContentLoaded", function () {
+    // Ajoute un écouteur d'événement pour l'événement pageshow
+    window.addEventListener("pageshow", function (event) {
+      // Si l'attribut persisted est défini et est égal à true, cela signifie que la page est rechargée depuis le cache du navigateur, et non en naviguant vers une nouvelle page.
+      if (event.persisted) {
+        // Appelle la fonction de rafraîchissement de la page
+        rafraichirPage();
+      }
+    });
+  });
